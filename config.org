@@ -1,0 +1,216 @@
+#+TITLE:Emac config
+#+AUTHOR: et
+#+DATE:Mon 28 Nov 2022 03:17:21 AM EST
+
+*  Melpas package
+
+#+BEGIN_SRC emacs-lisp
+;
+(require 'package)
+(setq package-enable-at-startup nil)
+(add-to-list 'package-archives
+	     '("melpa" . "https://melpa.org/packages/") t)
+#+END_SRC 
+* Ido Mode
+#+BEGIN_SRC emacs-lisp
+(setq ido-enable-flex-matching t)
+(setq ido-everywhere t)
+  (ido-mode 1)
+#+END_SRC
+
+* Package Management
+#+BEGIN_SRC emacs-lisp 
+;(require 'use-package)
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+  #+END_SRC
+* Loading custom file
+#+BEGIN_SRC emacs-lisp
+(setq custom-file "~/.emacs.d/custom-file.el")
+
+;; Do not use `init.el` for `custom-*` code - use `custom-file.el`.
+  (setq custom-file "~/.emacs.d/custom-file.el")
+
+;Assuming that the code in custom-file is execute before the code
+  ;; ahead of this line is not a safe assumption. So load this file
+  ;; proactively.
+  (load-file custom-file)
+#+END_SRC
+* Junk I'm not sure about but need
+#+BEGIN_SRC emacs-lisp
+  (use-package basic-c-compile) 
+  (setq file-name-handler-alist nil)
+#+END_SRC
+* Fixed
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-compacting-font-caches t)
+  
+  (global-visual-line-mode t)
+
+	    ;; Do not show the startup screen.
+	    (setq inhibit-startup-message t)
+
+	    ;; Disable tool bar, menu bar, scroll bar.
+	    (tool-bar-mode -1)
+	    (menu-bar-mode -1)
+	    (scroll-bar-mode -1)
+
+	    ;; Highlight current line.
+	    (global-hl-line-mode t)
+#+END_SRC
+* Magit
+#+BEGIN_SRC emacs-lisp
+(use-package magit)
+#+END_SRC
+* Company / Flycheck
+#+BEGIN_SRC emacs-lisp
+    ;;Starting company
+    (global-company-mode t)
+    ;;Setting select keys with
+    (define-key company-active-map (kbd "c-n") 'company-select-next)
+    (define-key company-active-map (kbd "C-p") 'company-select-previous)
+    (setq company-idle-delay 0.0)
+					    ;C/python/etc company 
+
+    (add-to-list 'company-backends 'company-c-headers)
+    (add-to-list 'company-backends 'company-jedi)
+    (add-to-list 'company-backends 'company-jedi)
+    (eval-after-load 'company
+	    '(add-to-list 'company-backends 'company-irony))
+
+    (use-package company-irony-c-headers)
+    ;; Load with `irony-mode` as a grouped backend
+     (eval-after-load 'company
+	    '(add-to-list
+		    'company-backends '(company-irony-c-headers company-irony)))
+
+  (use-package flycheck
+	  :ensure t)
+#+END_SRC
+* Theme
+#+BEGIN_SRC emacs-lisp
+
+      (setq use-dialog-box nil)
+
+	(setq use-file-dialog nil)
+
+	  (setq make-backup-files nil)
+
+	    (setq auto-save-default nil)
+		 ;;custom theme changes
+
+		  (use-package spacemacs-common
+		  :config
+		  (load-theme 'spacemacs-dark))
+		(setq spacemacs-theme-comment-italic t)
+		  (setq spacemacs-theme-comment-bg nil)
+
+		  ;;Makes emacs trans
+		  (set-frame-parameter (selected-frame) 'alpha '(95 .70))
+		   (add-to-list 'default-frame-alist '(alpha . (95 .70)))
+
+	      ;;Font
+		(add-to-list 'default-frame-alist
+			   '(font . "JetBrains Mono-11"))
+
+  ;;Exit ease
+    (defalias 'yes-or-no-p 'y-or-n-p)
+    (fringe-mode -1)
+    (global-subword-mode 1)
+
+   (use-package org-bullets
+    :ensure t
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+#+END_SRC
+* Dashboard
+#+BEGIN_SRC emacs-lisp
+  ;;Starting Dashboard
+  (use-package dashboard
+  :config
+  (dashboard-setup-startup-hook)
+  (setq dashboard-startup-banner "~/Pictures/emacs/2.png")
+  (setq dashboard-footer-messages '("Talk is cheap."))
+  (setq dashboard-items '((recents  . 2)
+			  (bookmarks . 2)
+			  (agenda . 1))))
+
+  ;Dashboard req
+  (use-package page-break-lines)
+  (use-package projectile)
+  ;LOOK UP THIS NAME FOR MORE ICONS IN PACKAGE INSTALL
+  (use-package all-the-icons)
+#+END_SRC
+* Evil
+#+BEGIN_SRC emacs-lisp
+(use-package evil
+  :config
+  (evil-mode 1))
+#+END_SRC
+* Eletric pair mode
+#+BEGIN_SRC emacs-lisp
+  (electric-pair-mode 1)
+  #+END_SRC
+* Which Key / Projectile
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :ensure t
+    :init
+    (which-key-mode))
+
+  (use-package projectile
+  :ensure t
+  :init
+  (projectile-mode 1))
+  #+END_SRC
+* "Home made" Functions
+#+BEGIN_SRC emacs-lisp
+  ;;Home made functions with keybind
+  ;;
+  ;;Spliting and adding a terminal
+  (defun -own-terminal-split ()
+    (interactive)
+    (split-window-below)
+    (vterm))
+#+END_SRC
+* Keybinds
+ #+BEGIN_SRC emacs-lisp   
+      (global-set-key (kbd "C-x t") '-own-terminal-split)
+
+    (use-package swiper
+      :ensure t
+      :bind ("C-s" . 'swiper))
+
+   ;;OWNKEYBINDS
+
+      ;;Launching shell
+      ;(global-set-key (kbd "C-x SPC") 'shell-command)
+
+      ;;Find file
+      (global-set-key (kbd "C-x .") 'find-file)
+
+      ;;Eval buffer quick
+      (global-set-key (kbd "C-x x e") 'eval-buffer)
+
+      ;;Shift arrow keys will now move windows
+      (windmove-default-keybindings)
+#+END_SRC
+* Keep Down here vVvVv
+#+BEGIN_SRC emacs-lisp
+;;LEAVE DOWN HERE
+
+
+  (custom-set-variables
+   ;; custom-set-variables was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(custom-safe-themes
+     '("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default))
+   '(package-selected-packages
+     '(all-the-icons projectile page-break-lines dashboard evil spacemacs-theme)))
+  (custom-set-faces
+   )
+
+#+END_SRC
